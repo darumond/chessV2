@@ -4,12 +4,10 @@
 #include <string>
 #include <vector>
 #include <iostream>
-#include <cstdlib>
 #include <sstream>
-#include <iomanip>
+#include <cstdlib>
 
-class board
-{
+class board {
 public:
     board(const std::string &initialFen);
     void reset();
@@ -21,8 +19,10 @@ public:
 private:
     std::string fen;
     char boardState[8][8];
+
     std::vector<std::string> generateLegalMoves(char player) const;
     std::vector<std::string> generateMovesForPiece(int row, int col, char piece) const;
+    bool isKingInCheck(char player) const;
     std::string convertToAlgebraic(int fromRow, int fromCol, int toRow, int toCol) const;
 };
 
