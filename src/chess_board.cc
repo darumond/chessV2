@@ -1,5 +1,6 @@
 #include "chess_board.h"
 
+
 board::board(const std::string& initialFen) : fen(initialFen) {
     reset();
 }
@@ -38,19 +39,18 @@ void board::setFromFEN(const std::string& newFen) {
         }
     }
 }
+
 void board::applyMoves(const std::vector<std::string>& moves) {
     for (const auto& move : moves) {
         if (move.size() < 4) {
             std::cerr << "Invalid move format: " << move << "\n";
             continue;
         }
-
-        int fromCol = move[0] - 'a'; 
+        int fromCol = move[0] - 'a';
         int fromRow = move[1] - '1';
         int toCol = move[2] - 'a';
         int toRow = move[3] - '1';
 
-        // Check bounds
         if (fromCol < 0 || fromCol > 7 || fromRow < 0 || fromRow > 7 ||
             toCol < 0 || toCol > 7 || toRow < 0 || toRow > 7) {
             std::cerr << "Move out of bounds: " << move << "\n";
@@ -63,10 +63,65 @@ void board::applyMoves(const std::vector<std::string>& moves) {
     }
 }
 
+std::string board::getBestMove(char player) {
+    std::vector<std::string> legalMoves = generateLegalMoves(player);
 
-std::string board::getBestMove() {
-    std::vector<std::string> legalMoves = {"e2e4", "d2d4", "g1f3"};
+    if (legalMoves.empty()) {
+        return "0000";
+    }
+
     return legalMoves[std::rand() % legalMoves.size()];
+}
+
+std::vector<std::string> board::generateLegalMoves(char player) const {
+    std::vector<std::string> moves;
+
+    char currentPlayer = player;
+
+    for (int row = 0; row < 8; ++row) {
+        for (int col = 0; col < 8; ++col) {
+            char piece = boardState[row][col];
+            if (piece == '\0') continue;
+
+            if ((currentPlayer == 'w' && std::isupper(piece)) ||
+                (currentPlayer == 'b' && std::islower(piece))) {
+                std::vector<std::string> pieceMoves = generateMovesForPiece(row, col, piece);
+                moves.insert(moves.end(), pieceMoves.begin(), pieceMoves.end());
+            }
+        }
+    }
+
+    return moves;
+}
+
+std::vector<std::string> board::generateMovesForPiece(int row, int col, char piece) const {
+    std::vector<std::string> moves;
+    if (piece == 'P') {
+        if (row < 7 && boardState[row + 1][col] == '\0') {
+            moves.push_back(convertToAlgebraic(row, col, row + 1, col));
+        }
+        if (row == 1 && boardState[row + 2][col] == '\0' && boardState[row + 1][col] == '\0') {
+            moves.push_back(convertToAlgebraic(row, col, row + 2, col));
+        }
+    } else if (piece == 'p') {
+        if (row > 0 && boardState[row - 1][col] == '\0') {
+            moves.push_back(convertToAlgebraic(row, col, row - 1, col));
+        }
+        if (row == 6 && boardState[row - 2][col] == '\0' && boardState[row - 1][col] == '\0') {
+            moves.push_back(convertToAlgebraic(row, col, row - 2, col));
+        }
+    }
+
+    return moves;
+}
+
+std::string board::convertToAlgebraic(int fromRow, int fromCol, int toRow, int toCol) const {
+    std::string move;
+    move += ('a' + fromCol);
+    move += ('1' + fromRow);
+    move += ('a' + toCol);
+    move += ('1' + toRow);
+    return move;
 }
 
 void board::printBoard() const {

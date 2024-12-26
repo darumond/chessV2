@@ -9,6 +9,7 @@ void uciLoop()
 {
     std::string line;
     board chessBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    std::vector<std::string> moves;
 
     while (std::getline(std::cin, line))
     {
@@ -31,10 +32,10 @@ void uciLoop()
         }
         else if (command == "position")
         {
+            moves.clear();
             std::string positionType;
             iss >> positionType;
 
-            std::vector<std::string> moves;
             if (positionType == "startpos")
             {
                 chessBoard.reset();
@@ -57,7 +58,12 @@ void uciLoop()
         }
         else if (command == "go")
         {
-            auto bestMove = chessBoard.getBestMove();
+            char player = 'w';
+            if(!moves.empty())
+            {
+                player = moves.size() % 2 == 0 ? 'w' : 'b';
+            }
+            auto bestMove = chessBoard.getBestMove(player);
             std::cout << "bestmove " << bestMove << "\n";
         }
         else if (command == "quit" || command == "stop")
