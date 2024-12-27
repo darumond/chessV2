@@ -22,7 +22,9 @@ private:
 
     std::vector<std::string> generateLegalMoves(char player) const;
     std::vector<std::string> generateMovesForPiece(int row, int col, char piece) const;
+
     bool isKingInCheck(char player) const;
+    bool isSquareAttacked(int row, int col, char opponent) const;
     std::string convertToAlgebraic(int fromRow, int fromCol, int toRow, int toCol) const;
 };
 
